@@ -1,0 +1,22 @@
+.contact-message-summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-bottom: 18px; }
+.contact-message-summary article { display: grid; gap: 8px; padding: 18px; color: rgba(255,255,255,.72); background: linear-gradient(125deg, #252b62, #4a568e); border: 1px solid rgba(255,255,255,.16); border-radius: 12px; }
+.contact-message-summary article strong { color: #fff; font-size: 26px; }
+.contact-message-panel { min-width: 0; }
+.contact-message-tools { align-items: center; flex-wrap: wrap; }
+.contact-message-tools .search-box { flex: 1 1 280px; }
+.contact-message-tools .filter-button { max-width: 220px; }
+.contact-message-table { min-width: 920px; }
+.contact-message-table td:first-child { min-width: 180px; }
+.contact-message-table td:first-child > strong { display: block; margin-bottom: 6px; }
+.contact-message-table td:first-child a { display: flex; align-items: center; gap: 5px; width: fit-content; margin-top: 4px; color: rgba(255,255,255,.75); font-size: 11px; text-decoration: none; }
+.contact-message-table td:first-child a:hover { color: #fbb21b; }
+.contact-message-table td:nth-child(2) { min-width: 150px; font-weight: 700; }
+.contact-message-table .contact-message-body { min-width: 260px; max-width: 420px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.contact-message-status { max-width: 130px; padding: 7px 8px; color: #fff; background: #30356f; border: 1px solid rgba(255,255,255,.24); border-radius: 7px; font-size: 10px; }
+.contact-message-status:disabled { cursor: wait; opacity: .6; }
+.contact-message-status.new { border-color: rgba(251,178,27,.5); }
+.contact-message-status.replied { border-color: rgba(55,195,148,.5); }
+@media (max-width: 760px) {
+  .contact-message-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .contact-message-tools .filter-button { flex: 1; max-width: none; }
+}

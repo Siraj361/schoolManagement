@@ -1,0 +1,40 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "seed": "node scripts/seed.js",
+    "migrate:user-ids": "node scripts/migrate-user-ids.js",
+    "migrate:course-fees": "node scripts/migrate-course-fees.js",
+    "migrate:teacher-fields": "node scripts/migrate-teacher-profile-fields.js",
+    "migrate:instructor-compensation": "node scripts/migrate-instructor-compensation.js",
+    "migrate:institute-social-links": "node scripts/migrate-institute-social-links.js",
+    "migrate:institute-expenses": "node scripts/migrate-institute-expenses.js",
+    "migrate:assignments": "node scripts/migrate-assignments.js",
+    "migrate:course-sessions": "node scripts/migrate-course-sessions.js",
+    "restore:super-admin-access": "node scripts/restore-super-admin-access.js",
+    "migrate:timestamps": "node scripts/migrate-timestamps.js",
+    "migrate:student-portal": "node scripts/migrate-student-portal.js",
+    "repair:fee-calendar": "node scripts/repair-fee-calendar.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "multer": "^2.3.0",
+    "mysql2": "^3.24.3",
+    "pdfkit": "^0.20.2",
+    "sequelize": "^6.37.8"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}

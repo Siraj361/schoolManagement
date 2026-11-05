@@ -1,0 +1,11 @@
+const router = require("express").Router();
+const hr = require("../controllers/hr.controller");
+const { requireAuth } = require("../middleware/auth");
+const authorize = require("../middleware/authorize");
+router.use(requireAuth);
+router.get("/", authorize("staff.read"), hr.list);
+router.post("/staff", authorize("staff.write"), hr.createStaff);
+router.post("/attendance", authorize("staff.write"), hr.markAttendance);
+router.post("/leaves", authorize("staff.write"), hr.createLeave);
+router.post("/payroll", authorize("staff.write"), hr.createPayroll);
+module.exports = router;

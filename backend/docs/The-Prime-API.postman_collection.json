@@ -1,0 +1,79 @@
+{
+  "info": {
+    "_postman_id": "7a11d2f2-0e33-4e06-91bb-0d9d9c1b6a01",
+    "name": "The Prime Student Fee SaaS API",
+    "description": "Importable Postman collection for the implemented The Prime backend APIs.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:5000/api/v1" },
+    { "key": "accessToken", "value": "" },
+    { "key": "studentId", "value": "" },
+    { "key": "invoiceId", "value": "" },
+    { "key": "userId", "value": "" },
+    { "key": "recordId", "value": "" }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login - Super Admin",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["const json = pm.response.json();", "if (json.data && json.data.accessToken) pm.collectionVariables.set('accessToken', json.data.accessToken);", "if (json.data && json.data.user) pm.collectionVariables.set('userId', json.data.user.id);"] } }],
+          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"email\": \"admin@theprime.edu.pk\",\n  \"password\": \"ChangeMe123!\"\n}", "options": { "raw": { "language": "json" } } }, "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] } }
+        },
+        { "name": "Current User", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/auth/me", "host": ["{{baseUrl}}"], "path": ["auth", "me"] } } }
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "item": [
+        { "name": "Overview", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/dashboard/overview", "host": ["{{baseUrl}}"], "path": ["dashboard", "overview"] } } }
+      ]
+    },
+    {
+      "name": "Students",
+      "item": [
+        { "name": "List Students", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/students?search=Ahmed&limit=25&offset=0", "host": ["{{baseUrl}}"], "path": ["students"], "query": [{ "key": "search", "value": "Ahmed" }, { "key": "limit", "value": "25" }, { "key": "offset", "value": "0" }] } } },
+        { "name": "Register Student With Photo", "request": { "method": "POST", "header": [], "body": { "mode": "formdata", "formdata": [{ "key": "name", "value": "Ahmed Khan", "type": "text" }, { "key": "fatherName", "value": "Muhammad Khan", "type": "text" }, { "key": "courseName", "value": "Full Stack Web Development", "type": "text" }, { "key": "registrationDate", "value": "2026-09-11", "type": "text" }, { "key": "photo", "type": "file", "src": "" }] }, "url": { "raw": "{{baseUrl}}/students", "host": ["{{baseUrl}}"], "path": ["students"] } } },
+        { "name": "Replace Student Photo", "request": { "method": "POST", "body": { "mode": "formdata", "formdata": [{ "key": "photo", "type": "file", "src": "" }] }, "url": { "raw": "{{baseUrl}}/students/{{studentId}}/photo", "host": ["{{baseUrl}}"], "path": ["students", "{{studentId}}", "photo"] } } },
+        { "name": "Verify Student", "request": { "method": "GET", "auth": { "type": "noauth" }, "url": { "raw": "{{baseUrl}}/public/verify/student/STU-1001?sig=verification-token", "host": ["{{baseUrl}}"], "path": ["public", "verify", "student", "STU-1001"], "query": [{ "key": "sig", "value": "verification-token" }] } } }
+      ]
+    },
+    {
+      "name": "Finance",
+      "item": [
+        { "name": "Finance Overview", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/fees", "host": ["{{baseUrl}}"], "path": ["fees"] } } },
+        { "name": "List Invoices", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/fees/invoices?status=PENDING&limit=25&offset=0", "host": ["{{baseUrl}}"], "path": ["fees", "invoices"], "query": [{ "key": "status", "value": "PENDING" }, { "key": "limit", "value": "25" }, { "key": "offset", "value": "0" }] } } },
+        { "name": "Create Invoice", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"studentId\": \"{{studentId}}\",\n  \"amountMinor\": 4800000,\n  \"dueDate\": \"2026-09-30\",\n  \"description\": \"September 2026 tuition fee\"\n}", "options": { "raw": { "language": "json" } } }, "url": { "raw": "{{baseUrl}}/fees/invoices", "host": ["{{baseUrl}}"], "path": ["fees", "invoices"] } } },
+        { "name": "Collect Payment - Idempotent", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Idempotency-Key", "value": "payment-{{invoiceId}}-001" }], "body": { "mode": "raw", "raw": "{\n  \"invoiceId\": \"{{invoiceId}}\",\n  \"amountMinor\": 4800000,\n  \"method\": \"CASH\"\n}", "options": { "raw": { "language": "json" } } }, "url": { "raw": "{{baseUrl}}/fees/collect", "host": ["{{baseUrl}}"], "path": ["fees", "collect"] } } },
+        { "name": "List Payments", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/fees/payments?limit=50", "host": ["{{baseUrl}}"], "path": ["fees", "payments"], "query": [{ "key": "limit", "value": "50" }] } } },
+        { "name": "Defaulters", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/fees/defaulters", "host": ["{{baseUrl}}"], "path": ["fees", "defaulters"] } } },
+        { "name": "Create Scholarship", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"studentId\": \"{{studentId}}\",\n  \"type\": \"PERCENTAGE\",\n  \"percentage\": 25,\n  \"validFrom\": \"2026-09-01\",\n  \"validUntil\": \"2027-08-31\"\n}", "options": { "raw": { "language": "json" } } }, "url": { "raw": "{{baseUrl}}/fees/scholarships", "host": ["{{baseUrl}}"], "path": ["fees", "scholarships"] } } }
+      ]
+    },
+    {
+      "name": "Super Admin - Users & Permissions",
+      "item": [
+        { "name": "List Users", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/settings/users", "host": ["{{baseUrl}}"], "path": ["settings", "users"] } } },
+        { "name": "Create User With Avatar", "request": { "method": "POST", "body": { "mode": "formdata", "formdata": [{ "key": "firstName", "value": "Ali", "type": "text" }, { "key": "lastName", "value": "Khan", "type": "text" }, { "key": "email", "value": "ali@theprime.edu.pk", "type": "text" }, { "key": "password", "value": "StrongPass123", "type": "text" }, { "key": "role", "value": "ADMIN", "type": "text" }, { "key": "avatar", "type": "file", "src": "" }] }, "url": { "raw": "{{baseUrl}}/settings/users", "host": ["{{baseUrl}}"], "path": ["settings", "users"] } } },
+        { "name": "List Roles", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/settings/roles", "host": ["{{baseUrl}}"], "path": ["settings", "roles"] } } },
+        { "name": "Update Role Permissions", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"permissions\": [\n    \"dashboard.read\",\n    \"fees.read\",\n    \"fees.write\",\n    \"reports.financial\"\n  ]\n}", "options": { "raw": { "language": "json" } } }, "url": { "raw": "{{baseUrl}}/settings/roles/ACCOUNTS", "host": ["{{baseUrl}}"], "path": ["settings", "roles", "ACCOUNTS"] } } },
+        { "name": "Get User Access", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/settings/users/{{userId}}/access", "host": ["{{baseUrl}}"], "path": ["settings", "users", "{{userId}}", "access"] } } },
+        { "name": "Update User Access", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"permissions\": [\n    \"dashboard.read\",\n    \"students.read\",\n    \"students.attendance\"\n  ]\n}", "options": { "raw": { "language": "json" } } }, "url": { "raw": "{{baseUrl}}/settings/users/{{userId}}/access", "host": ["{{baseUrl}}"], "path": ["settings", "users", "{{userId}}", "access"] } } }
+      ]
+    },
+    {
+      "name": "Sidebar Modules",
+      "item": [
+        { "name": "List Module Records", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/modules/academics-courses?search=Web&limit=100", "host": ["{{baseUrl}}"], "path": ["modules", "academics-courses"], "query": [{ "key": "search", "value": "Web" }, { "key": "limit", "value": "100" }] } } },
+        { "name": "Create Module Record", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Full Stack Web Development\",\n  \"details\": {\n    \"durationMonths\": 12,\n    \"delivery\": \"On campus\"\n  },\n  \"status\": \"ACTIVE\",\n  \"owner\": \"Academic office\"\n}", "options": { "raw": { "language": "json" } } }, "url": { "raw": "{{baseUrl}}/modules/academics-courses", "host": ["{{baseUrl}}"], "path": ["modules", "academics-courses"] } } },
+        { "name": "Update Module Record", "request": { "method": "PATCH", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Full Stack Web Development - Updated\",\n  \"status\": \"ACTIVE\"\n}", "options": { "raw": { "language": "json" } } }, "url": { "raw": "{{baseUrl}}/modules/academics-courses/{{recordId}}", "host": ["{{baseUrl}}"], "path": ["modules", "academics-courses", "{{recordId}}"] } } }
+      ]
+    }
+  ]
+}

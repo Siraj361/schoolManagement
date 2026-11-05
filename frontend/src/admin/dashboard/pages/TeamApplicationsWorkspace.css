@@ -1,0 +1,23 @@
+.team-application-summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-bottom: 18px; }
+.team-application-summary article { display: grid; gap: 8px; padding: 18px; color: rgba(255,255,255,.72); background: linear-gradient(125deg, #252b62, #4a568e); border: 1px solid rgba(255,255,255,.16); border-radius: 12px; }
+.team-application-summary article strong { color: #fff; font-size: 26px; }
+.team-application-panel { min-width: 0; }
+.team-application-tools { align-items: center; flex-wrap: wrap; }
+.team-application-tools .search-box { flex: 1 1 280px; }
+.team-application-tools .filter-button { max-width: 220px; }
+.team-application-table { min-width: 1020px; }
+.team-application-table td:first-child { min-width: 200px; }
+.team-application-table td:first-child > strong { display: block; margin-bottom: 6px; }
+.team-application-table td:first-child a { display: flex; align-items: center; gap: 5px; width: fit-content; margin-top: 4px; color: rgba(255,255,255,.75); font-size: 11px; text-decoration: none; }
+.team-application-table td:first-child a:hover { color: #fbb21b; }
+.team-application-type { display: inline-flex; max-width: 190px; padding: 6px 9px; color: #fff; background: rgba(251,178,27,.18); border: 1px solid rgba(251,178,27,.24); border-radius: 20px; font-size: 10px; font-weight: 700; line-height: 1.4; }
+.team-application-type.community { background: rgba(116,166,255,.16); border-color: rgba(116,166,255,.22); }
+.team-application-type.internship { background: rgba(55,195,148,.15); border-color: rgba(55,195,148,.23); }
+.team-application-detail { display: block; max-width: 250px; margin: 0 0 7px; color: rgba(255,255,255,.78); font-size: 11px; line-height: 1.5; overflow-wrap: anywhere; }
+.team-application-detail b { display: block; color: rgba(255,255,255,.55); font-size: 9px; text-transform: capitalize; }
+.team-cv-download { display: inline-flex; align-items: center; gap: 6px; max-width: 180px; padding: 7px 9px; color: #fbb21b; background: rgba(251,178,27,.1); border: 1px solid rgba(251,178,27,.24); border-radius: 7px; font-size: 10px; font-weight: 700; cursor: pointer; }
+.team-cv-download:disabled { cursor: not-allowed; opacity: .55; }
+.team-cv-download:not(:disabled):hover { background: rgba(251,178,27,.2); }
+.team-application-status { max-width: 140px; padding: 7px 8px; color: #fff; background: #30356f; border: 1px solid rgba(255,255,255,.24); border-radius: 7px; font-size: 10px; }
+.team-application-status:disabled { cursor: wait; opacity: .6; }
+@media (max-width: 760px) { .team-application-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }.team-application-tools .filter-button { flex: 1; max-width: none; } }

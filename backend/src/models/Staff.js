@@ -1,0 +1,4 @@
+const { DataTypes } = require("sequelize");
+const sequelize = require("../config/database");
+const Staff = sequelize.define("Staff", { id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true }, instituteId: { type: DataTypes.UUID, allowNull: false }, firstName: { type: DataTypes.STRING(80), allowNull: false }, lastName: { type: DataTypes.STRING(80), allowNull: false }, email: { type: DataTypes.STRING(160), allowNull: false }, phone: DataTypes.STRING(30), department: { type: DataTypes.STRING(100), allowNull: false }, designation: { type: DataTypes.STRING(120), allowNull: false }, monthlySalary: { type: DataTypes.DECIMAL(12, 2), allowNull: false, defaultValue: 0 }, status: { type: DataTypes.ENUM("ACTIVE", "INACTIVE"), allowNull: false, defaultValue: "ACTIVE" } }, { tableName: "staff", indexes: [{ unique: true, fields: ["instituteId", "email"] }] });
+module.exports = Staff;
