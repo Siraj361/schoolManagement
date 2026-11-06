@@ -5,6 +5,8 @@ const sequelize = require("./src/config/database");
 const ensurePublicInquiryFields = require("./src/utils/ensurePublicInquiryFields");
 const ensureInstituteContactFields = require("./src/utils/ensureInstituteContactFields");
 const ensureCourseCategory = require("./src/utils/ensureCourseCategory");
+const ensureCourseImageField = require("./src/utils/ensureCourseImageField");
+const ensureProgramImageField = require("./src/utils/ensureProgramImageField");
 require("./src/models");
 
 const PORT = process.env.PORT || 5000;
@@ -19,6 +21,8 @@ const startServer = async () => {
     await ensurePublicInquiryFields();
     await ensureInstituteContactFields();
     await ensureCourseCategory();
+    await ensureCourseImageField();
+    await ensureProgramImageField();
 
     app.listen(PORT, () => {
       console.log(`Server running on http://localhost:${PORT}`);

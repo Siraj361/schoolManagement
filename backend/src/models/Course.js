@@ -8,6 +8,7 @@ const Course = sequelize.define("Course", {
   slug: { type: DataTypes.STRING(180), allowNull: false },
   category: { type: DataTypes.STRING(100), allowNull: false, defaultValue: "Short Courses" },
   description: DataTypes.TEXT,
+  imageUrl: { type: DataTypes.STRING(500), allowNull: true },
   durationMonths: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 12 },
   monthlyFeeMinor: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 },
   totalFeeMinor: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 },

@@ -36,3 +36,6 @@ body { margin: 0; }
 .forgot-button, .login-footer button { color: #30356f; }
 .login-button { color: #30356f; background: #fbb21b; box-shadow: 0 7px 14px rgba(251,178,27,.22); }
 .login-button:hover { background: #e6a00f; }
+.login-art { position: relative; overflow: hidden; }
+.login-art > *:not(.login-particle-background) { position: relative; z-index: 1; }
+.login-particle-background { position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; pointer-events: none; }

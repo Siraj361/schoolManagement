@@ -547,3 +547,101 @@ button, input { font: inherit; } button { cursor: pointer; }
   .course-workspace .module-record { grid-template-columns: minmax(170px, 1fr) 100px 90px 120px; }
   .course-record-actions { flex-wrap: wrap; }
 }
+.program-image-preview {
+  display: block;
+  width: 100%;
+  max-width: 280px;
+  aspect-ratio: 16 / 9;
+  margin-top: 10px;
+  overflow: hidden;
+  border: 1px solid #dde2ef;
+  border-radius: 10px;
+  background: #f4f6fb;
+}
+.program-image-preview img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.course-workspace .module-form {
+  scroll-margin-top: 18px;
+  max-width: 980px;
+  margin-right: auto;
+  animation: course-edit-form-reveal .18s ease-out;
+}
+.course-workspace .module-form-heading {
+  align-items: flex-start;
+}
+.course-workspace .module-form-fields {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+.course-workspace .module-form-fields label {
+  min-width: 0;
+}
+.course-workspace .module-form-fields input,
+.course-workspace .module-form-fields select,
+.course-workspace .course-description-field textarea,
+.course-workspace .course-description-field input[type='file'] {
+  min-height: 38px;
+  border-radius: 7px;
+}
+.course-workspace .course-description-field {
+  margin-top: 12px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fbfcfd;
+}
+.course-workspace .program-image-preview {
+  max-width: 220px;
+  aspect-ratio: 16 / 8;
+}
+.course-workspace .module-form-actions {
+  margin-top: 14px;
+  padding-top: 12px;
+}
+@media (max-width: 980px) {
+  .course-workspace .module-form-fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 760px) {
+  .course-workspace .module-form-fields {
+    grid-template-columns: 1fr;
+  }
+  .course-workspace .module-form {
+    padding: 14px;
+  }
+}
+.course-workspace .module-form .module-form-fields label,
+.course-workspace .module-form .course-description-field {
+  position: relative;
+}
+.course-workspace .module-form .field-help {
+  display: block;
+  margin-top: 2px;
+  color: #8a92a0;
+  font-size: 9px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+@keyframes course-edit-form-reveal {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.course-record-thumbnail {
+  flex: 0 0 auto;
+  width: 48px;
+  height: 36px;
+  overflow: hidden;
+  border-radius: 6px;
+  background: #eef1f7;
+}
+.course-record-thumbnail img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}

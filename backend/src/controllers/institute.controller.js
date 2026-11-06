@@ -11,8 +11,8 @@ const publicProfile = async (req, res, next) => {
       Student.count({ where: { instituteId: institute.id, status: "ACTIVE" } }),
       Instructor.count({ where: { instituteId: institute.id, status: "ACTIVE" } }),
       Program.count({ where: { instituteId: institute.id, status: "ACTIVE" } }),
-      Program.findAll({ where: { instituteId: institute.id, status: "ACTIVE" }, attributes: ["id", "name", "category", "description", "durationMonths"], order: [["category", "ASC"], ["name", "ASC"]] }),
-      Course.findAll({ where: { instituteId: institute.id, status: "ACTIVE" }, attributes: ["id", "name", "category", "description", "durationMonths", "monthlyFeeMinor", "totalFeeMinor"], order: [["category", "ASC"], ["name", "ASC"]] }),
+      Program.findAll({ where: { instituteId: institute.id, status: "ACTIVE" }, attributes: ["id", "name", "slug", "category", "description", "durationMonths", "imageUrl"], order: [["category", "ASC"], ["name", "ASC"]] }),
+      Course.findAll({ where: { instituteId: institute.id, status: "ACTIVE" }, attributes: ["id", "name", "slug", "category", "description", "durationMonths", "monthlyFeeMinor", "totalFeeMinor", "imageUrl"], order: [["category", "ASC"], ["name", "ASC"]] }),
       Instructor.findAll({ where: { instituteId: institute.id, status: "ACTIVE" }, attributes: ["id", "firstName", "lastName", "qualifications", "skills", "avatarUrl"], order: [["firstName", "ASC"], ["lastName", "ASC"]] }),
       ModuleRecord.findOne({ where: { instituteId: institute.id, module: "life-at-prime", status: "ACTIVE" }, order: [["created_at", "DESC"]] }),
     ]);

@@ -1,7 +1,8 @@
-import { ArrowRight, Award, BadgePercent, BookOpen, Boxes, Brain, Building2, CalendarDays, Camera, CheckCircle2, ChevronDown, CircleHelp, ClipboardCheck, Clock, Cpu, Database, Globe2, GraduationCap, Mail, MapPin, Menu, MessageCircle, MonitorPlay, Phone, Play, ScanEye, Send, ShieldCheck, Sparkles, Target, UserCheck, Users, WalletCards, X } from 'lucide-react'
+import { ArrowRight, ArrowUp, Award, BadgePercent, BookOpen, Boxes, Brain, Building2, CalendarDays, Camera, CheckCircle2, ChevronDown, CircleHelp, ClipboardCheck, Clock, Cpu, Database, Globe2, GraduationCap, Mail, MapPin, Menu, MessageCircle, MonitorPlay, Phone, Play, ScanEye, Send, ShieldCheck, Sparkles, Target, UserCheck, Users, WalletCards, X } from 'lucide-react'
 import { Fragment, useEffect, useRef, useState } from 'react'
 import { apiAssetUrl, apiGet, apiPost, apiUpload } from './api'
 import LoadingScreen from './LoadingScreen'
+import LoginParticleBackground from './LoginParticleBackground'
 import './landing.css'
 
 const programTones = ['navy', 'gold', 'coral']
@@ -136,9 +137,16 @@ function LandingPage({ onLogin }) {
   const courseCategories = [...new Set(courses.map((course) => course.category?.trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b))
   const landingProgramCategories = [...new Set(programs.map((program) => program.category?.trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b))
   const navigationProgramCategories = landingProgramCategories.length ? landingProgramCategories : programCategories
-  const visiblePrograms = selectedProgramCategory === 'All Programs'
+  const baseVisiblePrograms = selectedProgramCategory === 'All Programs'
     ? programs
     : programs.filter((program) => program.category?.trim().toLowerCase() === selectedProgramCategory.toLowerCase())
+  const visiblePrograms = baseVisiblePrograms.map((program) => {
+    const matchingCourse = courses.find((course) =>
+      course.slug === program.slug ||
+      course.name?.trim().toLowerCase() === program.name?.trim().toLowerCase()
+    )
+    return { ...program, imageUrl: program.imageUrl || matchingCourse?.imageUrl || null }
+  })
   const campusGallery = Array.isArray(lifeAtPrime.gallery) ? lifeAtPrime.gallery.filter((image) => image.src && image.caption) : []
   const footerSocialLinks = [
     { key: 'instagram', label: 'Instagram', href: institute?.instagramUrl || 'https://www.instagram.com/', icon: <Camera size={18} aria-hidden="true" /> },
@@ -387,16 +395,22 @@ function LandingPage({ onLogin }) {
 
       <section className="landing-marquee"><span>Digital learning</span><i /> <span>Career-ready skills</span><i /> <span>Mentor-led growth</span><i /> <span>International Level confidence</span></section>
 
-      <section className="landing-stats-strip"><article><GraduationCap size={25} /><strong>{statValue(landingStats.studentCount)}</strong><span>Students</span></article><article><Users size={25} /><strong>{statValue(landingStats.facultyCount)}</strong><span>Faculty members</span></article><article><ShieldCheck size={25} /><strong>{statValue(landingStats.programCount)}</strong><span>Programs</span></article><article><CalendarDays size={25} /><strong>{statValue(institute?.yearsOfExcellence ?? 5)}</strong><span>Years of excellence</span></article></section>
+      <section className="landing-stats-strip">
+        <LoginParticleBackground className="landing-section-particle-background" particleColor="#30356f" glowColor="#f7991c" />
+        <article><GraduationCap size={25} /><strong>{statValue(landingStats.studentCount)}</strong><span>Students</span></article><article><Users size={25} /><strong>{statValue(landingStats.facultyCount)}</strong><span>Faculty members</span></article><article><ShieldCheck size={25} /><strong>{statValue(landingStats.programCount)}</strong><span>Programs</span></article><article><CalendarDays size={25} /><strong>{statValue(institute?.yearsOfExcellence ?? 5)}</strong><span>Years of excellence</span></article>
+      </section>
 
       <section className="landing-purple-band"><span className="landing-eyebrow">Global tech workforce challenge</span><h2>Preparing talent for an industry <em>under transformation.</em></h2><p>Technology is entering a new era. Across the world, employers are experiencing increasing demand for skilled digital professionals due to:</p><div className="landing-pill-row">{challengeTags.map(({ icon: Icon, label }) => <span key={label}><Icon size={11} style={{ marginRight: 5, verticalAlign: -2 }} />{label}</span>)}</div><p style={{ marginTop: 30, fontWeight: 700, fontSize: 15, color: '#fff' }}>&ldquo;Develop skilled tech professionals who can contribute nationally and internationally.&rdquo;</p><p style={{ fontSize: 10, opacity: .7 }}>— The Prime mission, aligned with this global need</p></section>
 
-      <section className="landing-process"><div className="landing-section-heading"><span className="landing-eyebrow">The Prime global response</span><h2>From classroom to <em>real-world impact.</em></h2><p>The Prime follows a four-stage workforce development model.</p></div><div className="process-row">{processSteps.map((step, index) => <Fragment key={step.title}>
+      <section className="landing-process">
+        <LoginParticleBackground className="landing-section-particle-background" particleColor="#30356f" glowColor="#f7991c" />
+        <div className="landing-section-heading"><span className="landing-eyebrow">The Prime global response</span><h2>From classroom to <em>real-world impact.</em></h2><p>The Prime follows a four-stage workforce development model.</p></div><div className="process-row">{processSteps.map((step, index) => <Fragment key={step.title}>
         <article className="process-step"><span className="process-step-badge">{step.number}</span><div className="process-step-icon"><step.icon size={20} /></div><h3>{step.title}</h3><p>{step.detail}</p></article>
         {index < processSteps.length - 1 && <ArrowRight className="process-arrow" size={20} />}
       </Fragment>)}</div></section>
 
       <section className="landing-section landing-programs" id="programs">
+        <LoginParticleBackground className="landing-section-particle-background" particleColor="#30356f" glowColor="#f7991c" />
         <div className="landing-section-heading">
           <div>
             <span className="landing-eyebrow">Find your direction</span>
@@ -405,7 +419,11 @@ function LandingPage({ onLogin }) {
           <a href="#programs" onClick={(event) => { event.preventDefault(); setSelectedProgramCategory('All Programs') }}>View all programs <ArrowRight size={15} /></a>
         </div>
         {coursesError && <p className="landing-courses-status" role="alert">{coursesError}</p>}
-        {visiblePrograms.length ? <div className="program-grid">{visiblePrograms.map((program, index) => <article className={`program-card ${programTones[index % programTones.length]}`} key={program.id}>
+        {visiblePrograms.length ? <div className="program-grid">{visiblePrograms.map((program, index) => <article
+          className={`program-card ${programTones[index % programTones.length]}${program.imageUrl ? ' has-image' : ''}`}
+          key={program.id}
+        >
+          {program.imageUrl && <img className="program-card-image" src={apiAssetUrl(program.imageUrl)} alt={program.name} />}
           <div className="program-card-number">{String(index + 1).padStart(2, '0')}</div>
           <span>{program.category}{program.durationMonths ? ` · ${program.durationMonths} months` : ''}</span>
           <h3>{program.name}</h3>
@@ -414,21 +432,37 @@ function LandingPage({ onLogin }) {
         </article>)}</div> : <p className="landing-courses-status">{coursesError || 'No programs are listed in this category yet. Please contact admissions for details.'}</p>}
       </section>
 
-      <section className="landing-impact" id="experience"><div className="landing-impact-copy"><span className="landing-eyebrow">About The Prime</span><h2>A centre for applied education, innovation &amp; <em>professional excellence.</em></h2><p>A multidisciplinary technology institute strengthening the digital workforce through quality education, professional training and innovation.</p><div className="landing-impact-list">{aboutPoints.map(({ icon: Icon, title, detail }) => <span key={title}><Icon size={14} /> <strong style={{ color: '#45257a' }}>{title}</strong> — {detail}</span>)}</div><button className="landing-primary-button">Learn more about The Prime <ArrowRight size={15} /></button></div><div className="landing-impact-image"><img src="https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=900&q=80" alt="Modern institute building" /></div></section>
+      <section className="landing-impact" id="experience">
+        <LoginParticleBackground className="landing-section-particle-background" particleColor="#30356f" glowColor="#f7991c" />
+        <div className="landing-impact-copy"><span className="landing-eyebrow">About The Prime</span><h2>A centre for applied education, innovation &amp; <em>professional excellence.</em></h2><p>A multidisciplinary technology institute strengthening the digital workforce through quality education, professional training and innovation.</p><div className="landing-impact-list">{aboutPoints.map(({ icon: Icon, title, detail }) => <span key={title}><Icon size={14} /> <strong style={{ color: '#45257a' }}>{title}</strong> — {detail}</span>)}</div><button className="landing-primary-button">Learn more about The Prime <ArrowRight size={15} /></button></div><div className="landing-impact-image"><img src="https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=900&q=80" alt="Modern institute building" /></div>
+      </section>
 
       <section className="landing-vision" id="vision"><div className="landing-vision-inner"><span className="landing-eyebrow">Our vision — vision 2035</span><blockquote>&ldquo;To become a globally recognized technology education and innovation ecosystem producing future-ready digital professionals who transform industries through knowledge, technology and creativity.&rdquo;</blockquote><cite><b>Institutional philosophy:</b> Human-centred technology, powered by knowledge &amp; innovation.</cite></div></section>
 
-      <section className="landing-specialties" id="departments"><div className="landing-section-heading"><div><span className="landing-eyebrow">Academic departments</span><h2>Building specialists across <em>modern domains.</em></h2></div><a href="#contact">View all departments <ArrowRight size={15} /></a></div><div className="specialty-grid">{faculties.map((faculty) => <article key={faculty.title} className="specialty-card" style={{ backgroundImage: `url(${faculty.image})` }}><span className="specialty-badge">{faculty.badge}</span><h3>{faculty.title}</h3><p>{faculty.detail}</p><button>Explore department <ArrowRight size={13} /></button></article>)}</div></section>
+      <section className="landing-specialties" id="departments">
+        <LoginParticleBackground className="landing-section-particle-background" particleColor="#30356f" glowColor="#f7991c" />
+        <div className="landing-section-heading"><div><span className="landing-eyebrow">Academic departments</span><h2>Building specialists across <em>modern domains.</em></h2></div><a href="#contact">View all departments <ArrowRight size={15} /></a></div><div className="specialty-grid">{faculties.map((faculty) => <article key={faculty.title} className="specialty-card" style={{ backgroundImage: `url(${faculty.image})` }}><span className="specialty-badge">{faculty.badge}</span><h3>{faculty.title}</h3><p>{faculty.detail}</p><button>Explore department <ArrowRight size={13} /></button></article>)}</div>
+      </section>
 
-      <section className="landing-team" id="faculty"><div className="landing-team-heading"><span className="landing-eyebrow">Meet our people</span><h2>Our <em>Team.</em></h2><p>Meet the instructors guiding our students through practical learning.</p></div>{team.length ? <div className="landing-team-viewport"><div className="landing-team-track">{[0, 1].map((loop) => <div className="landing-team-slide" key={`team-loop-${loop}`} aria-hidden={loop === 1}>{teamLoop.map((member, index) => <article className="team-member-card" key={`${loop}-${index}-${member.id}`} aria-hidden={loop === 1 || index >= team.length}><div className="team-member-photo">{member.avatarUrl ? <img src={apiAssetUrl(member.avatarUrl)} alt={loop === 0 && index < team.length ? `${member.firstName} ${member.lastName}` : ''} loading="lazy" /> : <span aria-hidden="true">{`${member.firstName?.[0] || ''}${member.lastName?.[0] || ''}`}</span>}</div><h3>{member.firstName} {member.lastName}</h3><p>{member.skills || member.qualifications || 'Faculty member'}</p></article>)}</div>)}</div></div> : <p className="landing-courses-status">No active team members are available right now.</p>}</section>
+      <section className="landing-team" id="faculty">
+        <LoginParticleBackground className="landing-section-particle-background" particleColor="#30356f" glowColor="#f7991c" />
+        <div className="landing-team-heading"><span className="landing-eyebrow">Meet our people</span><h2>Our <em>Team.</em></h2><p>Meet the instructors guiding our students through practical learning.</p></div>{team.length ? <div className="landing-team-viewport"><div className="landing-team-track">{[0, 1].map((loop) => <div className="landing-team-slide" key={`team-loop-${loop}`} aria-hidden={loop === 1}>{teamLoop.map((member, index) => <article className="team-member-card" key={`${loop}-${index}-${member.id}`} aria-hidden={loop === 1 || index >= team.length}><div className="team-member-photo">{member.avatarUrl ? <img src={apiAssetUrl(member.avatarUrl)} alt={loop === 0 && index < team.length ? `${member.firstName} ${member.lastName}` : ''} loading="lazy" /> : <span aria-hidden="true">{`${member.firstName?.[0] || ''}${member.lastName?.[0] || ''}`}</span>}</div><h3>{member.firstName} {member.lastName}</h3><p>{member.skills || member.qualifications || 'Faculty member'}</p></article>)}</div>)}</div></div> : <p className="landing-courses-status">No active team members are available right now.</p>}
+      </section>
 
-      <section className="landing-advantage" id="why-prime"><span className="landing-eyebrow">Why The Prime</span><h2>The future-ready <em>learning advantage.</em></h2><div className="advantage-grid">{advantages.map(({ icon: Icon, title, detail }) => <article key={title}><div className="advantage-icon"><Icon size={16} /></div><h3>{title}</h3><p>{detail}</p></article>)}</div></section>
+      <section className="landing-advantage" id="why-prime">
+        <LoginParticleBackground className="landing-section-particle-background" particleColor="#30356f" glowColor="#f7991c" />
+        <span className="landing-eyebrow">Why The Prime</span><h2>The future-ready <em>learning advantage.</em></h2><div className="advantage-grid">{advantages.map(({ icon: Icon, title, detail }) => <article key={title}><div className="advantage-icon"><Icon size={16} /></div><h3>{title}</h3><p>{detail}</p></article>)}</div>
+      </section>
 
       <section className="landing-digital" id="outcomes"><span className="landing-eyebrow">Digital transformation &amp; AI strategy</span><h2>Preparing tech professionals for the intelligent digital era.</h2><p>Technology is rapidly transforming through artificial intelligence and emerging tools — the Prime Digital Innovation Initiative builds that future in.</p><div className="digital-grid">{digitalCards.map(({ icon: Icon, title, detail, color }) => <article className="digital-card" key={title}><div className="digital-card-icon" style={{ background: color }}><Icon size={18} /></div><h3>{title}</h3><p>{detail}</p></article>)}</div></section>
 
-      <section className="campus-experience" id="campus"><div className="campus-heading"><span className="landing-eyebrow">{lifeAtPrime.eyebrow}</span><h2>{lifeAtPrime.titlePrefix} <em>{lifeAtPrime.titleHighlight}</em></h2><p>{lifeAtPrime.description}</p></div><div className="campus-pillars">{(Array.isArray(lifeAtPrime.categories) ? lifeAtPrime.categories : defaultLifeAtPrime.categories).filter((category) => category?.trim()).map((category, index) => { const Icon = campusCategoryIcons[index % campusCategoryIcons.length]; return <span key={`${category}-${index}`}><Icon size={15} /> {category}</span> })}</div>{campusGallery.length > 0 && <div className="campus-gallery">{campusGallery.map((item) => <figure key={item.src}><img src={item.src.startsWith('/uploads/') ? apiAssetUrl(item.src) : item.src} alt={item.alt} loading="lazy" /><figcaption>{item.caption}</figcaption></figure>)}</div>}</section>
+      <section className="campus-experience" id="campus">
+        <LoginParticleBackground className="landing-section-particle-background" particleColor="#30356f" glowColor="#f7991c" />
+        <div className="campus-heading"><span className="landing-eyebrow">{lifeAtPrime.eyebrow}</span><h2>{lifeAtPrime.titlePrefix} <em>{lifeAtPrime.titleHighlight}</em></h2><p>{lifeAtPrime.description}</p></div><div className="campus-pillars">{(Array.isArray(lifeAtPrime.categories) ? lifeAtPrime.categories : defaultLifeAtPrime.categories).filter((category) => category?.trim()).map((category, index) => { const Icon = campusCategoryIcons[index % campusCategoryIcons.length]; return <span key={`${category}-${index}`}><Icon size={15} /> {category}</span> })}</div>{campusGallery.length > 0 && <div className="campus-gallery">{campusGallery.map((item) => <figure key={item.src}><img src={item.src.startsWith('/uploads/') ? apiAssetUrl(item.src) : item.src} alt={item.alt} loading="lazy" /><figcaption>{item.caption}</figcaption></figure>)}</div>}
+      </section>
 
       <section className="landing-admissions" id="admissions">
+        <LoginParticleBackground className="landing-section-particle-background" particleColor="#30356f" glowColor="#f7991c" />
         <div className="landing-section-heading admissions-heading">
           <div><span className="landing-eyebrow">Admissions</span><h2>Your next step starts <em>here.</em></h2><p>Explore the process, review published course fees, or ask our team for guidance.</p></div>
           <button className="landing-primary-button" onClick={openApplication}>Apply for admission <ArrowRight size={17} /></button>
@@ -461,6 +495,7 @@ function LandingPage({ onLogin }) {
       </section>
       <section className="landing-cta" id="contact"><div><span className="landing-eyebrow">Your next move</span><h2>Ready to make it <em>real?</em></h2><p>Talk to our admissions team and find the right program for your goals.</p></div><button className="landing-primary-button" onClick={openApplication}>Start your application <ArrowRight size={17} /></button></section>
       <section className="location-contact-section" id="location-contact" aria-labelledby="location-contact-title">
+        <LoginParticleBackground className="location-contact-particle-background" particleColor="#30356f" glowColor="#f7991c" spacing={32} interactionRadius={150} />
         <h2 id="location-contact-title">Location &amp; <span>Contact</span></h2>
         <div className="location-contact-card">
           <div className="location-map">
@@ -535,6 +570,15 @@ function LandingPage({ onLogin }) {
             {institute?.academicYear && <li><CalendarDays size={13} /> Academic year: {institute.academicYear}</li>}
           </ul>
         </div>
+        <button
+          className="footer-scroll-top"
+          type="button"
+          aria-label="Scroll to top"
+          title="Back to top"
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+        >
+          <ArrowUp size={20} strokeWidth={2.4} />
+        </button>
       </div>
       <div className="landing-footer-bottom">© 2026 {instituteName}. All rights reserved.</div>
     </footer>

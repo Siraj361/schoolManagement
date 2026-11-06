@@ -9,6 +9,7 @@ const Program = sequelize.define("Program", {
   category: { type: DataTypes.STRING(100), allowNull: false },
   description: { type: DataTypes.TEXT, allowNull: false },
   durationMonths: { type: DataTypes.INTEGER, allowNull: true },
+  imageUrl: { type: DataTypes.STRING(500), allowNull: true },
   status: { type: DataTypes.ENUM("ACTIVE", "ARCHIVED"), allowNull: false, defaultValue: "ACTIVE" },
 }, { tableName: "programs", indexes: [{ unique: true, fields: ["instituteId", "slug"] }] });
 

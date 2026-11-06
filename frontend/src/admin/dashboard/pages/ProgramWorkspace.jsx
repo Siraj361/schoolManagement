@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Check, Pencil, Plus, Search } from 'lucide-react'
-import { apiGet, apiPatch, apiPost } from '../../../api'
+import { apiAssetUrl, apiGet, apiPatch, apiPost, apiUpload } from '../../../api'
 
 const suggestedCategories = ['IT & Technology', 'Diploma Programs', 'Linguistic Programs', 'CSS & CCE Preparation', 'Short Courses']
 
@@ -12,11 +12,27 @@ function ProgramWorkspace({ item }) {
   const [error, setError] = useState('')
   const [saving, setSaving] = useState(false)
 
+  const normalizeSlug = (value) => String(value || '')
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, '-')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+
   const loadPrograms = () => apiGet('/academics/programs?limit=250')
     .then(({ data }) => setPrograms(data.items || []))
     .catch((requestError) => setError(requestError.message))
 
   useEffect(() => { loadPrograms() }, [])
+
+  useEffect(() => {
+    if (!showForm) return
+    const frame = requestAnimationFrame(() => {
+      document.querySelector('.course-workspace .module-form')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      document.querySelector('.course-workspace .module-form input[name="name"]')?.focus()
+    })
+    return () => cancelAnimationFrame(frame)
+  }, [showForm, editing?.id])
 
   const saveProgram = async (event) => {
     event.preventDefault()
@@ -26,19 +42,30 @@ function ProgramWorkspace({ item }) {
     const durationValue = form.get('durationMonths')
     const values = {
       name: form.get('name'),
-      slug: form.get('slug'),
+      slug: normalizeSlug(form.get('slug')),
       category: form.get('category'),
       description: form.get('description'),
       durationMonths: durationValue ? Number(durationValue) : null,
     }
+    const imageFile = form.get('image')
     try {
+      let savedItem
       if (editing) {
         const { data } = await apiPatch(`/academics/programs/${editing.id}`, values)
-        setPrograms((current) => current.map((program) => program.id === data.item.id ? data.item : program))
+        savedItem = data.item
       } else {
         const { data } = await apiPost('/academics/programs', values)
-        setPrograms((current) => [data.item, ...current])
+        savedItem = data.item
       }
+      if (imageFile instanceof File && imageFile.size > 0) {
+        const imageForm = new FormData()
+        imageForm.append('image', imageFile)
+        const { data } = await apiUpload(`/academics/programs/${savedItem.id}/image`, imageForm)
+        savedItem = data.item
+      }
+      setPrograms((current) => editing
+        ? current.map((program) => program.id === savedItem.id ? savedItem : program)
+        : [savedItem, ...current])
       setShowForm(false)
       setEditing(null)
     } catch (requestError) {
@@ -72,11 +99,19 @@ function ProgramWorkspace({ item }) {
       <form key={editing?.id || 'new-program'} onSubmit={saveProgram}>
         <div className="module-form-fields">
           <label>Program name<input name="name" maxLength={160} defaultValue={editing?.name} placeholder="MERN Full Stack" required /></label>
-          <label>Slug<input name="slug" maxLength={180} pattern="[a-z0-9]+(-[a-z0-9]+)*" defaultValue={editing?.slug} placeholder="mern-full-stack" required /></label>
+          <label>Slug<input name="slug" maxLength={180} defaultValue={editing?.slug || ''} placeholder="mern-full-stack" required onChange={(event) => {
+            const cursorEnd = event.target.selectionStart === event.target.value.length
+            event.target.value = normalizeSlug(event.target.value)
+            if (cursorEnd) event.target.setSelectionRange(event.target.value.length, event.target.value.length)
+          }} /><small className="field-help">Spaces and special characters are converted automatically.</small></label>
           <label>Category<input name="category" maxLength={100} list="program-category-options" defaultValue={editing?.category} placeholder="Linguistic Programs" required /><datalist id="program-category-options">{[...new Set([...suggestedCategories, ...programs.map((program) => program.category)])].map((category) => <option key={category} value={category} />)}</datalist></label>
           <label>Duration (months)<input name="durationMonths" type="number" min="1" max="120" defaultValue={editing?.durationMonths || ''} placeholder="Optional" /></label>
         </div>
         <label className="course-description-field">Landing-page description<textarea name="description" rows={4} maxLength={5000} defaultValue={editing?.description} placeholder="Describe the program shown on the landing page" required /></label>
+        <label className="course-description-field">Program card image<input name="image" type="file" accept="image/jpeg,image/png,image/webp" />
+          {editing?.imageUrl && <span className="program-image-preview"><img src={apiAssetUrl(editing.imageUrl)} alt={`${editing.name} preview`} /></span>}
+          <small>JPEG, PNG, or WebP. Maximum 5 MB. The image appears behind the landing-page course card.</small>
+        </label>
         <div className="module-form-actions"><button type="button" className="ghost-button" onClick={() => { setShowForm(false); setEditing(null) }}>Cancel</button><button className="primary-button" type="submit" disabled={saving}><Check size={15} /> {saving ? 'Saving...' : editing ? 'Update program' : 'Save program'}</button></div>
       </form>
     </section>}
