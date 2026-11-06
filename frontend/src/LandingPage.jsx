@@ -94,6 +94,7 @@ function LandingPage({ onLogin }) {
   const [isNavbarSticky, setIsNavbarSticky] = useState(false)
   const [activeNav, setActiveNav] = useState('')
   const [selectedProgramCategory, setSelectedProgramCategory] = useState('All Programs')
+  const [showAllPrograms, setShowAllPrograms] = useState(false)
   const [applicationOpen, setApplicationOpen] = useState(false)
   const [applicationForm, setApplicationForm] = useState({ name: '', phone: '', email: '', courseId: '', preferredTiming: '', message: '' })
   const [applicationError, setApplicationError] = useState('')
@@ -114,6 +115,7 @@ function LandingPage({ onLogin }) {
   const chatMessagesEndRef = useRef(null)
   const [programs, setPrograms] = useState([])
   const [courses, setCourses] = useState([])
+  const [showAllFeeCourses, setShowAllFeeCourses] = useState(false)
   const [coursesLoading, setCoursesLoading] = useState(true)
   const [coursesError, setCoursesError] = useState('')
   const [startupLoaderComplete, setStartupLoaderComplete] = useState(() => sessionStorage.getItem('prime_startup_loader_seen') === 'true')
@@ -416,10 +418,9 @@ function LandingPage({ onLogin }) {
             <span className="landing-eyebrow">Find your direction</span>
             <h2>{selectedProgramCategory === 'All Programs' ? <>Programs built around <em>doing.</em></> : <>{selectedProgramCategory}</>}</h2>
           </div>
-          <a href="#programs" onClick={(event) => { event.preventDefault(); setSelectedProgramCategory('All Programs') }}>View all programs <ArrowRight size={15} /></a>
         </div>
         {coursesError && <p className="landing-courses-status" role="alert">{coursesError}</p>}
-        {visiblePrograms.length ? <div className="program-grid">{visiblePrograms.map((program, index) => <article
+        {visiblePrograms.length ? <><div className="program-grid">{(selectedProgramCategory === 'All Programs' && !showAllPrograms ? visiblePrograms.slice(0, 8) : visiblePrograms).map((program, index) => <article
           className={`program-card ${programTones[index % programTones.length]}${program.imageUrl ? ' has-image' : ''}`}
           key={program.id}
         >
@@ -429,7 +430,7 @@ function LandingPage({ onLogin }) {
           <h3>{program.name}</h3>
           <p>{program.description?.trim() || 'Explore this course and contact our admissions team to learn more.'}</p>
           <a href={whatsappNumber ? `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(`Hello, I am interested in the ${program.name} program.`)}` : `mailto:${instituteEmail}?subject=${encodeURIComponent(`Inquiry about ${program.name}`)}`} target={whatsappNumber ? '_blank' : undefined} rel={whatsappNumber ? 'noreferrer' : undefined}>Ask about program <ArrowRight size={14} /></a>
-        </article>)}</div> : <p className="landing-courses-status">{coursesError || 'No programs are listed in this category yet. Please contact admissions for details.'}</p>}
+        </article>)}</div>{selectedProgramCategory === 'All Programs' && visiblePrograms.length > 8 && <button className="landing-programs-toggle" type="button" aria-expanded={showAllPrograms} onClick={() => setShowAllPrograms((current) => !current)}>{showAllPrograms ? 'See less programs' : 'View all programs'} <ChevronDown size={15} /></button>}</> : <p className="landing-courses-status">{coursesError || 'No programs are listed in this category yet. Please contact admissions for details.'}</p>}
       </section>
 
       <section className="landing-impact" id="experience">
@@ -441,7 +442,7 @@ function LandingPage({ onLogin }) {
 
       <section className="landing-specialties" id="departments">
         <LoginParticleBackground className="landing-section-particle-background" particleColor="#30356f" glowColor="#f7991c" />
-        <div className="landing-section-heading"><div><span className="landing-eyebrow">Academic departments</span><h2>Building specialists across <em>modern domains.</em></h2></div><a href="#contact">View all departments <ArrowRight size={15} /></a></div><div className="specialty-grid">{faculties.map((faculty) => <article key={faculty.title} className="specialty-card" style={{ backgroundImage: `url(${faculty.image})` }}><span className="specialty-badge">{faculty.badge}</span><h3>{faculty.title}</h3><p>{faculty.detail}</p><button>Explore department <ArrowRight size={13} /></button></article>)}</div>
+        <div className="landing-section-heading"><div><span className="landing-eyebrow">Academic departments</span><h2>Building specialists across <em>modern domains.</em></h2></div></div><div className="specialty-grid">{faculties.map((faculty) => <article key={faculty.title} className="specialty-card" style={{ backgroundImage: `url(${faculty.image})` }}><span className="specialty-badge">{faculty.badge}</span><h3>{faculty.title}</h3><p>{faculty.detail}</p><button>Explore department <ArrowRight size={13} /></button></article>)}</div>
       </section>
 
       <section className="landing-team" id="faculty">
@@ -473,7 +474,7 @@ function LandingPage({ onLogin }) {
         </div>
         <div className="admission-fees" id="admission-fees">
           <div className="admission-subheading"><WalletCards size={19} /><div><h3>Course fee structure</h3><p>Fees shown here are loaded from the active course records.</p></div></div>
-          {courses.length ? <div className="admission-fee-grid">{courses.map((course) => {
+          {courses.length ? <><div className="admission-fee-grid">{(showAllFeeCourses ? courses : courses.slice(0, 6)).map((course) => {
             const monthlyFee = Number(course.monthlyFeeMinor || 0) / 100
             const totalFee = Number(course.totalFeeMinor || 0) / 100
             return <article className="admission-fee-card" key={course.id}>
@@ -482,7 +483,7 @@ function LandingPage({ onLogin }) {
               {totalFee > 0 || monthlyFee > 0 ? <div className="admission-fee-amounts">{totalFee > 0 && <strong>Rs {totalFee.toLocaleString('en-PK')} <small>total</small></strong>}{monthlyFee > 0 && <strong>Rs {monthlyFee.toLocaleString('en-PK')} <small>monthly</small></strong>}</div> : <strong className="admission-fee-contact">Contact admissions for current fees</strong>}
               <button type="button" onClick={() => openApplication(course.id)}>Ask about this course <ArrowRight size={14} /></button>
             </article>
-          })}</div> : <p className="admission-empty">Course fees will appear here when active courses are available. Contact admissions for details.</p>}
+          })}</div>{courses.length > 6 && <button className="admission-fee-toggle" type="button" aria-expanded={showAllFeeCourses} onClick={() => setShowAllFeeCourses((current) => !current)}>{showAllFeeCourses ? 'See less' : 'See more'} <ChevronDown size={15} /></button>}</> : <p className="admission-empty">Course fees will appear here when active courses are available. Contact admissions for details.</p>}
         </div>
         <div className="admission-scholarships" id="admission-scholarships">
           <div className="admission-scholarship-copy"><BadgePercent size={21} /><div><h3>Scholarships &amp; discounts</h3><p>Ask the admissions team about current scholarship or discount availability and eligibility.</p></div></div>
