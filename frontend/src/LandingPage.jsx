@@ -1,11 +1,10 @@
-import { ArrowRight, ArrowUp, Award, BadgePercent, BookOpen, Boxes, Brain, Building2, CalendarDays, Camera, CheckCircle2, ChevronDown, CircleHelp, ClipboardCheck, Clock, Cpu, Database, Globe2, GraduationCap, Mail, MapPin, Menu, MessageCircle, MonitorPlay, Phone, Play, ScanEye, Send, ShieldCheck, Sparkles, Target, UserCheck, Users, WalletCards, X } from 'lucide-react'
+import { ArrowRight, ArrowUp, Award, BadgePercent, BookOpen, Boxes, Brain, Building2, CalendarDays, Camera, CheckCircle2, ChevronDown, CircleHelp, ClipboardCheck, Clock, Cpu, Database, Globe2, GraduationCap, Mail, MapPin, Menu, MessageCircle, MonitorPlay, Phone, Play, ScanEye, Search, Send, ShieldCheck, SlidersHorizontal, Sparkles, Target, UserCheck, Users, WalletCards, X } from 'lucide-react'
 import { Fragment, useEffect, useRef, useState } from 'react'
 import { apiAssetUrl, apiGet, apiPost, apiUpload } from './api'
 import LoadingScreen from './LoadingScreen'
 import LoginParticleBackground from './LoginParticleBackground'
 import './landing.css'
 
-const programTones = ['navy', 'gold', 'coral']
 const programCategories = [
   'CSS & CCE Preparation',
   'Diploma Programs',
@@ -94,6 +93,7 @@ function LandingPage({ onLogin }) {
   const [isNavbarSticky, setIsNavbarSticky] = useState(false)
   const [activeNav, setActiveNav] = useState('')
   const [selectedProgramCategory, setSelectedProgramCategory] = useState('All Programs')
+  const [programSearch, setProgramSearch] = useState('')
   const [showAllPrograms, setShowAllPrograms] = useState(false)
   const [applicationOpen, setApplicationOpen] = useState(false)
   const [applicationForm, setApplicationForm] = useState({ name: '', phone: '', email: '', courseId: '', preferredTiming: '', message: '' })
@@ -139,9 +139,13 @@ function LandingPage({ onLogin }) {
   const courseCategories = [...new Set(courses.map((course) => course.category?.trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b))
   const landingProgramCategories = [...new Set(programs.map((program) => program.category?.trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b))
   const navigationProgramCategories = landingProgramCategories.length ? landingProgramCategories : programCategories
-  const baseVisiblePrograms = selectedProgramCategory === 'All Programs'
+  const categoryPrograms = selectedProgramCategory === 'All Programs'
     ? programs
     : programs.filter((program) => program.category?.trim().toLowerCase() === selectedProgramCategory.toLowerCase())
+  const programSearchTerm = programSearch.trim().toLowerCase()
+  const baseVisiblePrograms = categoryPrograms.filter((program) =>
+    !programSearchTerm || [program.name, program.category, program.description].filter(Boolean).join(' ').toLowerCase().includes(programSearchTerm)
+  )
   const visiblePrograms = baseVisiblePrograms.map((program) => {
     const matchingCourse = courses.find((course) =>
       course.slug === program.slug ||
@@ -419,18 +423,58 @@ function LandingPage({ onLogin }) {
             <h2>{selectedProgramCategory === 'All Programs' ? <>Programs built around <em>doing.</em></> : <>{selectedProgramCategory}</>}</h2>
           </div>
         </div>
+        {programs.length > 0 && (
+          <div className="landing-programs-toolbar" role="search" aria-label="Search and filter programs">
+            <label className="landing-programs-search">
+              <Search size={17} aria-hidden="true" />
+              <input
+                type="search"
+                value={programSearch}
+                onChange={(event) => { setProgramSearch(event.target.value); setShowAllPrograms(false) }}
+                placeholder="Search programs, skills, or keywords"
+                aria-label="Search programs"
+              />
+              {programSearch && (
+                <button type="button" onClick={() => setProgramSearch('')} aria-label="Clear program search">
+                  <X size={15} />
+                </button>
+              )}
+            </label>
+            <label className="landing-programs-filter">
+              <SlidersHorizontal size={16} aria-hidden="true" />
+              <select
+                value={selectedProgramCategory}
+                onChange={(event) => { setSelectedProgramCategory(event.target.value); setShowAllPrograms(false) }}
+                aria-label="Filter programs by category"
+              >
+                <option>All Programs</option>
+                {landingProgramCategories.map((category) => <option key={category} value={category}>{category}</option>)}
+              </select>
+            </label>
+            {(programSearch || selectedProgramCategory !== 'All Programs') && (
+              <button
+                className="landing-programs-reset"
+                type="button"
+                onClick={() => { setProgramSearch(''); setSelectedProgramCategory('All Programs'); setShowAllPrograms(false) }}
+              >
+                Reset
+              </button>
+            )}
+            <span className="landing-programs-results" aria-live="polite">
+              {visiblePrograms.length} {visiblePrograms.length === 1 ? 'program' : 'programs'}
+            </span>
+          </div>
+        )}
         {coursesError && <p className="landing-courses-status" role="alert">{coursesError}</p>}
-        {visiblePrograms.length ? <><div className="program-grid">{(selectedProgramCategory === 'All Programs' && !showAllPrograms ? visiblePrograms.slice(0, 8) : visiblePrograms).map((program, index) => <article
-          className={`program-card ${programTones[index % programTones.length]}${program.imageUrl ? ' has-image' : ''}`}
+        {visiblePrograms.length ? <><div className="program-grid program-specialty-grid">{(selectedProgramCategory === 'All Programs' && !programSearchTerm && !showAllPrograms ? visiblePrograms.slice(0, 8) : visiblePrograms).map((program) => <article
+          className="specialty-card program-specialty-card"
           key={program.id}
+          style={{ backgroundImage: program.imageUrl ? `url("${apiAssetUrl(program.imageUrl)}")` : 'linear-gradient(135deg, #30356f, #747bb1)' }}
         >
-          {program.imageUrl && <img className="program-card-image" src={apiAssetUrl(program.imageUrl)} alt={program.name} />}
-          <div className="program-card-number">{String(index + 1).padStart(2, '0')}</div>
-          <span>{program.category}{program.durationMonths ? ` · ${program.durationMonths} months` : ''}</span>
+          <span className="specialty-badge">{program.category || 'Program'}{program.durationMonths ? ` · ${program.durationMonths} months` : ''}</span>
           <h3>{program.name}</h3>
-          <p>{program.description?.trim() || 'Explore this course and contact our admissions team to learn more.'}</p>
-          <a href={whatsappNumber ? `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(`Hello, I am interested in the ${program.name} program.`)}` : `mailto:${instituteEmail}?subject=${encodeURIComponent(`Inquiry about ${program.name}`)}`} target={whatsappNumber ? '_blank' : undefined} rel={whatsappNumber ? 'noreferrer' : undefined}>Ask about program <ArrowRight size={14} /></a>
-        </article>)}</div>{selectedProgramCategory === 'All Programs' && visiblePrograms.length > 8 && <button className="landing-programs-toggle" type="button" aria-expanded={showAllPrograms} onClick={() => setShowAllPrograms((current) => !current)}>{showAllPrograms ? 'See less programs' : 'View all programs'} <ChevronDown size={15} /></button>}</> : <p className="landing-courses-status">{coursesError || 'No programs are listed in this category yet. Please contact admissions for details.'}</p>}
+          <p>{program.description?.trim() || 'Explore this program and contact our admissions team to learn more.'}</p>
+        </article>)}</div>{selectedProgramCategory === 'All Programs' && !programSearchTerm && visiblePrograms.length > 8 && <button className="landing-programs-toggle" type="button" aria-expanded={showAllPrograms} onClick={() => setShowAllPrograms((current) => !current)}>{showAllPrograms ? 'See less programs' : 'View all programs'} <ChevronDown size={15} /></button>}</> : <div className="landing-programs-empty"><Search size={20} /><p>{programSearchTerm || selectedProgramCategory !== 'All Programs' ? 'No programs match your search or selected filter.' : coursesError || 'No programs are listed in this category yet. Please contact admissions for details.'}</p>{(programSearchTerm || selectedProgramCategory !== 'All Programs') && <button type="button" onClick={() => { setProgramSearch(''); setSelectedProgramCategory('All Programs') }}>Clear filters</button>}</div>}
       </section>
 
       <section className="landing-impact" id="experience">
@@ -440,14 +484,38 @@ function LandingPage({ onLogin }) {
 
       <section className="landing-vision" id="vision"><div className="landing-vision-inner"><span className="landing-eyebrow">Our vision — vision 2035</span><blockquote>&ldquo;To become a globally recognized technology education and innovation ecosystem producing future-ready digital professionals who transform industries through knowledge, technology and creativity.&rdquo;</blockquote><cite><b>Institutional philosophy:</b> Human-centred technology, powered by knowledge &amp; innovation.</cite></div></section>
 
-      <section className="landing-specialties" id="departments">
-        <LoginParticleBackground className="landing-section-particle-background" particleColor="#30356f" glowColor="#f7991c" />
-        <div className="landing-section-heading"><div><span className="landing-eyebrow">Academic departments</span><h2>Building specialists across <em>modern domains.</em></h2></div></div><div className="specialty-grid">{faculties.map((faculty) => <article key={faculty.title} className="specialty-card" style={{ backgroundImage: `url(${faculty.image})` }}><span className="specialty-badge">{faculty.badge}</span><h3>{faculty.title}</h3><p>{faculty.detail}</p><button>Explore department <ArrowRight size={13} /></button></article>)}</div>
-      </section>
-
       <section className="landing-team" id="faculty">
         <LoginParticleBackground className="landing-section-particle-background" particleColor="#30356f" glowColor="#f7991c" />
-        <div className="landing-team-heading"><span className="landing-eyebrow">Meet our people</span><h2>Our <em>Team.</em></h2><p>Meet the instructors guiding our students through practical learning.</p></div>{team.length ? <div className="landing-team-viewport"><div className="landing-team-track">{[0, 1].map((loop) => <div className="landing-team-slide" key={`team-loop-${loop}`} aria-hidden={loop === 1}>{teamLoop.map((member, index) => <article className="team-member-card" key={`${loop}-${index}-${member.id}`} aria-hidden={loop === 1 || index >= team.length}><div className="team-member-photo">{member.avatarUrl ? <img src={apiAssetUrl(member.avatarUrl)} alt={loop === 0 && index < team.length ? `${member.firstName} ${member.lastName}` : ''} loading="lazy" /> : <span aria-hidden="true">{`${member.firstName?.[0] || ''}${member.lastName?.[0] || ''}`}</span>}</div><h3>{member.firstName} {member.lastName}</h3><p>{member.skills || member.qualifications || 'Faculty member'}</p></article>)}</div>)}</div></div> : <p className="landing-courses-status">No active team members are available right now.</p>}
+        <div className="landing-team-heading">
+          <span className="landing-eyebrow">Meet our people</span>
+          <h2>Introducing our <em>talented team.</em></h2>
+          <p>Meet our exceptional team of professional specialists shaping a dynamic future through talent and dedication.</p>
+        </div>
+        {team.length ? (
+          <div className="landing-team-viewport">
+            <div className="landing-team-track">
+              {[0, 1].map((loop) => (
+                <div className="landing-team-slide" key={`team-loop-${loop}`} aria-hidden={loop === 1}>
+                  {teamLoop.map((member, index) => (
+                    <article className="team-member-card" key={`${loop}-${index}-${member.id}`} aria-hidden={loop === 1}>
+                      <div className="team-member-photo">
+                        {member.avatarUrl
+                          ? <img src={apiAssetUrl(member.avatarUrl)} alt={loop === 0 ? `${member.firstName} ${member.lastName}` : ''} loading="lazy" />
+                          : <span aria-hidden="true">{`${member.firstName?.[0] || ''}${member.lastName?.[0] || ''}`}</span>}
+                      </div>
+                      <div className="team-member-info">
+                        <h3>{member.firstName} {member.lastName}</h3>
+                        <p>{member.skills || member.qualifications || 'Faculty member'}</p>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <p className="landing-courses-status">No active team members are available right now.</p>
+        )}
       </section>
 
       <section className="landing-advantage" id="why-prime">
@@ -472,16 +540,26 @@ function LandingPage({ onLogin }) {
           <div className="admission-subheading"><ClipboardCheck size={19} /><div><h3>Admission process</h3><p>Four simple steps to get started.</p></div></div>
           <div className="admission-step-grid">{admissionSteps.map(({ icon: Icon, title, detail }, index) => <article className="admission-step" key={title}><span className="admission-step-number">{String(index + 1).padStart(2, '0')}</span><Icon size={20} /><h4>{title}</h4><p>{detail}</p></article>)}</div>
         </div>
-        <div className="admission-fees" id="admission-fees">
-          <div className="admission-subheading"><WalletCards size={19} /><div><h3>Course fee structure</h3><p>Fees shown here are loaded from the active course records.</p></div></div>
+        <div className="admission-fees admission-fees-panel" id="admission-fees">
+          <div className="admission-subheading"><WalletCards size={19} /><div><h3>Course Fee Structure</h3><p>Fees shown here are loaded from the active course records.</p></div></div>
           {courses.length ? <><div className="admission-fee-grid">{(showAllFeeCourses ? courses : courses.slice(0, 6)).map((course) => {
             const monthlyFee = Number(course.monthlyFeeMinor || 0) / 100
             const totalFee = Number(course.totalFeeMinor || 0) / 100
             return <article className="admission-fee-card" key={course.id}>
-              <span>{course.category || 'Course'}</span><h4>{course.name}</h4>
-              <p>{course.durationMonths ? `${course.durationMonths} months` : 'Duration confirmed by admissions'}</p>
-              {totalFee > 0 || monthlyFee > 0 ? <div className="admission-fee-amounts">{totalFee > 0 && <strong>Rs {totalFee.toLocaleString('en-PK')} <small>total</small></strong>}{monthlyFee > 0 && <strong>Rs {monthlyFee.toLocaleString('en-PK')} <small>monthly</small></strong>}</div> : <strong className="admission-fee-contact">Contact admissions for current fees</strong>}
-              <button type="button" onClick={() => openApplication(course.id)}>Ask about this course <ArrowRight size={14} /></button>
+              <div className="admission-fee-card-meta">
+                <span className="admission-fee-category">{course.category || 'Course'}</span>
+                <span className="admission-fee-duration"><Clock size={13} />{course.durationMonths ? `${course.durationMonths} months` : 'Duration varies'}</span>
+              </div>
+              <h4>{course.name}</h4>
+              {totalFee > 0 || monthlyFee > 0 ? (
+                <div className="admission-fee-pricing">
+                  {totalFee > 0 && <div className="admission-fee-price"><small>Full program fee</small><strong>Rs {totalFee.toLocaleString('en-PK')}</strong></div>}
+                  {monthlyFee > 0 && <div className="admission-fee-price admission-fee-monthly"><small>Monthly installment</small><strong>Rs {monthlyFee.toLocaleString('en-PK')}</strong></div>}
+                </div>
+              ) : (
+                <div className="admission-fee-undisclosed"><strong>Fee details</strong><span>Contact admissions for current fees.</span></div>
+              )}
+              <button type="button" onClick={() => openApplication(course.id)}>Apply for this course <ArrowRight size={14} /></button>
             </article>
           })}</div>{courses.length > 6 && <button className="admission-fee-toggle" type="button" aria-expanded={showAllFeeCourses} onClick={() => setShowAllFeeCourses((current) => !current)}>{showAllFeeCourses ? 'See less' : 'See more'} <ChevronDown size={15} /></button>}</> : <p className="admission-empty">Course fees will appear here when active courses are available. Contact admissions for details.</p>}
         </div>
